@@ -1,0 +1,137 @@
+import express from "express";
+import tasks from "../data/tasks.js";
+
+const router = express.Router();
+
+const validStatuses = ["pending", "completed"];
+const validPriorities = ["low", "medium", "high"];
+const requiredFields = ["title", "description", "status", "priority", "dueDate", "category"];
+
+function getTaskId(value) {
+  const id = Number(value);
+
+  if (!Number.isInteger(id) || id < 1) {
+    return null;
+  }
+
+  return id;
+}
+
+function validateTaskFields(task) {
+  const missingFields = requiredFields.filter(
+    (field) => typeof task[field] !== "string" || task[field].trim() === ""
+  );
+
+  if (missingFields.length > 0) {
+    return `Missing required fields: ${missingFields.join(", ")}`;
+  }
+
+  if (!validStatuses.includes(task.status)) {
+    return "status must be pending or completed";
+  }
+
+  if (!validPriorities.includes(task.priority)) {
+    return "priority must be low, medium, or high";
+  }
+
+  return null;
+}
+
+router.get("/", (req, res) => {
+  res.json(tasks);
+});
+
+router.get("/:id", (req, res) => {
+  const id = getTaskId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({ error: "Task ID must be a positive integer" });
+  }
+
+  const task = tasks.find((item) => item.id === id);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  res.json(task);
+});
+
+router.post("/", (req, res) => {
+  const validationError = validateTaskFields(req.body);
+
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
+
+  const newTask = {
+    id: tasks.length > 0 ? Math.max(...tasks.map((task) => task.id)) + 1 : 1,
+    ...req.body,
+  };
+
+  tasks.push(newTask);
+  res.status(201).json(newTask);
+});
+
+router.put("/:id", (req, res) => {
+  const id = getTaskId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({ error: "Task ID must be a positive integer" });
+  }
+
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+
+  if (taskIndex === -1) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  const validationError = validateTaskFields(req.body);
+
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
+
+  tasks[taskIndex] = { id, ...req.body };
+  res.json(tasks[taskIndex]);
+});
+
+router.delete("/:id", (req, res) => {
+  const id = getTaskId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({ error: "Task ID must be a positive integer" });
+  }
+
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+
+  if (taskIndex === -1) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  const [deletedTask] = tasks.splice(taskIndex, 1);
+  res.json(deletedTask);
+});
+
+router.patch("/:id/status", (req, res) => {
+  const id = getTaskId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({ error: "Task ID must be a positive integer" });
+  }
+
+  if (!validStatuses.includes(req.body.status)) {
+    return res.status(400).json({ error: "status must be pending or completed" });
+  }
+
+  const task = tasks.find((item) => item.id === id);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  task.status = req.body.status;
+  res.json(task);
+});
+
+export default router;
