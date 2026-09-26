@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getTaskById, updateTask } from "../services/taskServices";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getTaskById,
+  updateTask,
+  deleteTask,
+} from "../services/taskServices";
 import TaskDetailsCard from "../components/TaskDetailsCard";
 import Input from "../components/Input";
+import { AppleSpinner } from "../components/AppleSpinner";
+
 
 const TasksDetails = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,6 +19,8 @@ const TasksDetails = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [isEditing, setisEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [formData, setformData] = useState({
     title: "",
     description: "",
@@ -47,7 +56,7 @@ const TasksDetails = () => {
     }
   };
 
-  const onEdit = async () => {
+  const onEdit = () => {
     setisEditing(true);
     setformData({
       title: task.title,
@@ -59,7 +68,7 @@ const TasksDetails = () => {
     });
   };
 
-  const onCancel = async () => {
+  const onCancel =() => {
     setisEditing(false);
   };
   const onSave = async () => {
@@ -68,18 +77,34 @@ const TasksDetails = () => {
       const data = await updateTask(id, formData);
       setTask(data);
       setisEditing(false);
+      navigate("/tasks");
     } catch (error) {
       console.log(error);
       setSaveError("Unable to update task");
-    }finally{
-      setIsSaving(false)
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  const onDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteTask(id);
+      navigate("/tasks");
+    } catch (error) {
+      console.log(error);
+      setDeleteError("Cannot delete task");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+ 
 
   return (
     <div>
       {loading ? (
-        <h1>Loading Task...</h1>
+        <AppleSpinner />
       ) : error !== "" ? (
         <h1>{error}</h1>
       ) : isEditing ? (
@@ -96,9 +121,8 @@ const TasksDetails = () => {
                   })
                 }
               >
-                <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
               </select>
             ) : field === "priority" ? (
               <select
@@ -111,9 +135,9 @@ const TasksDetails = () => {
                   })
                 }
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
             ) : (
               <Input
@@ -130,10 +154,21 @@ const TasksDetails = () => {
           )}
           {saveError && <p>{saveError}</p>}
           <button onClick={onCancel}>Cancel</button>
-          {isSaving ===false ? <button onClick={onSave}>Save</button> : <button disabled>Saving...</button> }
+          {isSaving === false ? (
+            <button onClick={onSave}>Save</button>
+          ) : (
+            <button disabled><AppleSpinner /></button>
+          )}
         </>
       ) : (
-        <TaskDetailsCard task={task} onEdit={onEdit} />
+        <TaskDetailsCard
+          task={task}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          deleteError={deleteError}
+          
+        />
       )}
     </div>
   );

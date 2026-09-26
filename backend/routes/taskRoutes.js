@@ -41,6 +41,24 @@ router.get("/", (req, res) => {
   res.json(tasks);
 });
 
+router.get("/dashboard", (req, res) => {
+  const totalTasks = tasks.length;
+
+  const completedTasks = tasks.filter(
+    (task) => task.status === "completed"
+  ).length;
+
+  const pendingTasks = tasks.filter(
+    (task) => task.status === "pending"
+  ).length;
+
+  res.json({
+    totalTasks,
+    completedTasks,
+    pendingTasks,
+  });
+});
+
 router.get("/:id", (req, res) => {
   const id = getTaskId(req.params.id);
 
@@ -111,6 +129,37 @@ router.delete("/:id", (req, res) => {
 
   const [deletedTask] = tasks.splice(taskIndex, 1);
   res.json(deletedTask);
+});
+
+router.patch("/:id", (req, res) => {
+  const id = getTaskId(req.params.id);
+
+  if (id === null) {
+    return res
+      .status(400)
+      .json({ error: "Task ID must be a positive integer" });
+  }
+
+  const task = tasks.find((item) => item.id === id);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  const validationError = validateTaskFields(req.body);
+
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
+
+  task.title = req.body.title;
+  task.description = req.body.description;
+  task.status = req.body.status;
+  task.priority = req.body.priority;
+  task.dueDate = req.body.dueDate;
+  task.category = req.body.category;
+
+  res.json(task);
 });
 
 router.patch("/:id/status", (req, res) => {

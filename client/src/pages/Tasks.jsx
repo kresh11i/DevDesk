@@ -3,6 +3,8 @@ import Input from "../components/Input";
 import { createTasks, getAllTasks } from "../services/taskServices";
 import Card from "../components/Card";
 import { Link } from "react-router-dom";
+import { AppleSpinner } from "../components/AppleSpinner";
+
 
 const Tasks = () => {
   const fetchData = async () => {

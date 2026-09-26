@@ -1,6 +1,13 @@
-import React from 'react'
+import React from "react";
+import { AppleSpinner } from "./AppleSpinner";
 
-const TaskDetailsCard = ({ task, onEdit }) => {
+const TaskDetailsCard = ({
+  task,
+  onEdit,
+  onDelete,
+  isDeleting,
+  deleteError,
+}) => {
   return (
     <div>
       <h1>{task.title}</h1>
@@ -13,8 +20,22 @@ const TaskDetailsCard = ({ task, onEdit }) => {
       <button type="button" onClick={onEdit}>
         Edit
       </button>
+
+     
+
+      {isDeleting === false ? (
+        <button type="button" onClick={onDelete}>
+          Delete
+        </button>
+      ) : (
+        <button disabled>
+          <AppleSpinner />
+        </button>
+      )}
+
+      {deleteError && <p>{deleteError}</p>}
     </div>
   );
 };
 
-export default TaskDetailsCard
+export default TaskDetailsCard;
