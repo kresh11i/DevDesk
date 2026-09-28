@@ -5,7 +5,6 @@ import Card from "../components/Card";
 import { Link } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
 
-
 const Tasks = () => {
   const fetchData = async () => {
     try {
@@ -17,6 +16,8 @@ const Tasks = () => {
       setLoading(false);
     }
   };
+  
+
   const [tasks, setTasks] = useState({
     title: "",
     description: "",
@@ -25,14 +26,16 @@ const Tasks = () => {
     dueDate: "",
     category: "",
   });
-
-  const [createdTask, setCreatedTask] = useState(null);
   const [taskList, setTaskList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchData();
   }, []);
+  const filteredTask = taskList.filter((task)=>{
+    return task.title.toLowerCase().includes(search.toLowerCase());
+  })
 
   const handleForm = (e) => {
     const { name, value } = e.target;
@@ -56,8 +59,6 @@ const Tasks = () => {
         dueDate: "",
         category: "",
       });
-
-      setCreatedTask(data);
 
       setTaskList([...taskList, data]);
 
@@ -116,9 +117,17 @@ const Tasks = () => {
           value={tasks.category}
           onChange={handleForm}
         />
+        <Input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
+        {console.log(search)}
+
         <button type="submit">Create Task</button>
       </form>
-      {taskList.map((t) => {
+      {filteredTask.map((t) => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>
             {" "}
