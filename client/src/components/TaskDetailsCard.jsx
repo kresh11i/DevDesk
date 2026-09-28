@@ -1,5 +1,6 @@
 import React from "react";
 import { AppleSpinner } from "./AppleSpinner";
+import { useNavigate } from "react-router-dom";
 
 const TaskDetailsCard = ({
   task,
@@ -8,6 +9,10 @@ const TaskDetailsCard = ({
   isDeleting,
   deleteError,
 }) => {
+  const navigate = useNavigate();
+  const handleTask = () => {
+    navigate("/tasks");
+  };
   return (
     <div>
       <h1>{task.title}</h1>
@@ -21,8 +26,6 @@ const TaskDetailsCard = ({
         Edit
       </button>
 
-     
-
       {isDeleting === false ? (
         <button type="button" onClick={onDelete}>
           Delete
@@ -32,6 +35,7 @@ const TaskDetailsCard = ({
           <AppleSpinner />
         </button>
       )}
+      <button onClick={handleTask}>Tasks</button>
 
       {deleteError && <p>{deleteError}</p>}
     </div>
