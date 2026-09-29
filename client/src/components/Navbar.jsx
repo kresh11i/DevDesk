@@ -5,7 +5,7 @@ import { ThemeContext } from "../context/ThemeContext";
 
 const Navbar = () => {
   const {theme,toggleTheme} = useContext(ThemeContext);
-  console.log(theme);
+ 
   
   return (
     <>

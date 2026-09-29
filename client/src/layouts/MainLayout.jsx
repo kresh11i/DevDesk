@@ -7,7 +7,7 @@ const MainLayout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const openSideBar = () => {
     setIsOpen(!isOpen);
-    console.log(isOpen);
+  
   };
 
   return (

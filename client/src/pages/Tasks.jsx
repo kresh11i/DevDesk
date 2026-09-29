@@ -4,20 +4,10 @@ import { createTasks, getAllTasks } from "../services/taskServices";
 import Card from "../components/Card";
 import { Link } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
+import { all } from "axios";
 
 const Tasks = () => {
-  const fetchData = async () => {
-    try {
-      const data = await getAllTasks();
-      setTaskList(data);
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
-  
-
+  // states
   const [tasks, setTasks] = useState({
     title: "",
     description: "",
@@ -29,13 +19,66 @@ const Tasks = () => {
   const [taskList, setTaskList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debounceSearch, setDebounceSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("default");
+
+  // variables
+  const fetchData = async () => {
+    try {
+      const data = await getAllTasks();
+      setTaskList(data);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  // filter tasks
+  const filteredTask = taskList.filter((task) => {
+    return (
+      task.title.toLowerCase().includes(debounceSearch.toLowerCase()) &&
+      (statusFilter === "all" || task.status === statusFilter) &&
+      (priorityFilter === "all" || task.priority === priorityFilter)
+    );
+  });
+
+  // sorting tasks
+
+  let priorityNumber = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
+  const sortedTask = filteredTask.sort((a, b) => {
+    if (sortBy === "priority") {
+      return priorityNumber[b.priority] - priorityNumber[a.priority];
+    } else {
+      return 0;
+    }
+  });
+
+  // useEffects
 
   useEffect(() => {
     fetchData();
   }, []);
-  const filteredTask = taskList.filter((task)=>{
-    return task.title.toLowerCase().includes(search.toLowerCase());
-  })
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setDebounceSearch(search);
+    }, 500);
+    return () => {
+      clearTimeout(delay);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    console.log("Status filter:", statusFilter);
+  }, [statusFilter]);
 
   const handleForm = (e) => {
     const { name, value } = e.target;
@@ -44,6 +87,8 @@ const Tasks = () => {
       [name]: value,
     });
   };
+
+  // functions
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +123,6 @@ const Tasks = () => {
           value={tasks.title}
           onChange={handleForm}
         />
-
         <Input
           type="text"
           name="description"
@@ -86,7 +130,6 @@ const Tasks = () => {
           value={tasks.description}
           onChange={handleForm}
         />
-
         <Input
           type="text"
           name="status"
@@ -94,7 +137,6 @@ const Tasks = () => {
           value={tasks.status}
           onChange={handleForm}
         />
-
         <Input
           type="text"
           name="priority"
@@ -102,14 +144,12 @@ const Tasks = () => {
           value={tasks.priority}
           onChange={handleForm}
         />
-
         <Input
           type="date"
           name="dueDate"
           value={tasks.dueDate}
           onChange={handleForm}
         />
-
         <Input
           type="text"
           name="category"
@@ -123,11 +163,56 @@ const Tasks = () => {
             setSearch(e.target.value);
           }}
         />
-        {console.log(search)}
+
+        {/* task status */}
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+          }}
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+        </select>
+        {/* task priority */}
+        <select
+          value={priorityFilter}
+          onChange={(e) => {
+            setPriorityFilter(e.target.value);
+          }}
+        >
+          <option value="all">All</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        {/* sortBy */}
+        <select
+          value={sortBy}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+          }}
+        >
+          <option value="default">Default</option>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="priority">Priority</option>
+          <option value="dueDate">Due Date</option>
+        </select>
 
         <button type="submit">Create Task</button>
       </form>
-      {filteredTask.map((t) => {
+      {/* {filteredTask.map((t) => {
+        return (
+          <Link key={t.id} to={`/tasks/${t.id}`}>
+            {" "}
+            <Card title={t.title} />
+          </Link>
+        );
+      })} */}
+      {sortedTask.map((t) => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>
             {" "}
