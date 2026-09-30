@@ -83,7 +83,7 @@ const Dashboard = () => {
             {taskData.map((t) => {
               return (
                 <Link key={t.id} to={`/tasks/${t.id}`}>
-                  <Card title={t.title} />
+                  <Card title={t.title} dueDate={t.dueDate} />
                 </Link>
               )
             })}

@@ -56,7 +56,10 @@ const Tasks = () => {
   const sortedTask = filteredTask.sort((a, b) => {
     if (sortBy === "priority") {
       return priorityNumber[b.priority] - priorityNumber[a.priority];
-    } else {
+    }
+    else if(sortBy ==="dueDate"){
+      return new Date(b.dueDate) - new Date(a.dueDate);
+    }else{
       return 0;
     }
   });
@@ -216,7 +219,7 @@ const Tasks = () => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>
             {" "}
-            <Card title={t.title} />
+            <Card title={t.title} dueDate={t.dueDate} />
           </Link>
         );
       })}
