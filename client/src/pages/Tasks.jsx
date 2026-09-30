@@ -23,12 +23,18 @@ const Tasks = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
 
   // variables
   const fetchData = async () => {
+    console.log("FETCHING → page:", currentPage, "limit:", limit);
     try {
-      const data = await getAllTasks();
-      setTaskList(data);
+      const data = await getAllTasks(currentPage, limit);
+      setTaskList(data.tasks);
+      setTotalPages(data.totalPages);
+
       setLoading(false);
     } catch (err) {
       console.log(err);
@@ -56,19 +62,35 @@ const Tasks = () => {
   const sortedTask = filteredTask.sort((a, b) => {
     if (sortBy === "priority") {
       return priorityNumber[b.priority] - priorityNumber[a.priority];
-    }
-    else if(sortBy ==="dueDate"){
+    } else if (sortBy === "dueDate") {
       return new Date(b.dueDate) - new Date(a.dueDate);
-    }else{
+    } else {
       return 0;
     }
   });
+
+  //pagination btn next and previous
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      console.log(nextPage);
+    }
+  };
+  const handlePrivious = () => {
+    if (currentPage > 1) {
+      const previousPage = currentPage - 1;
+      setCurrentPage(previousPage);
+      console.log(previousPage);
+    }
+  };
 
   // useEffects
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -78,10 +100,6 @@ const Tasks = () => {
       clearTimeout(delay);
     };
   }, [search]);
-
-  useEffect(() => {
-    console.log("Status filter:", statusFilter);
-  }, [statusFilter]);
 
   const handleForm = (e) => {
     const { name, value } = e.target;
@@ -164,6 +182,8 @@ const Tasks = () => {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
+            setCurrentPage(1);
+            console.log("Search changed → Page reset to:", 1);
           }}
         />
 
@@ -207,6 +227,12 @@ const Tasks = () => {
 
         <button type="submit">Create Task</button>
       </form>
+      <button onClick={handleNext} disabled={currentPage === 4}>
+        Next
+      </button>
+      <button onClick={handlePrivious} disabled={currentPage === 1}>
+        Previous
+      </button>
       {/* {filteredTask.map((t) => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>

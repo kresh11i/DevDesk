@@ -12,9 +12,11 @@ import { Link } from "react-router-dom";
 const Dashboard = () => {
   const fetchData = async () => {
     try {
-      const data = await getAllTasks();
-      setTaskData(data);
+      const data = await getAllTasks(1,5);
+      setTaskData(data.tasks);
       setLoading(false);
+      console.log("Dashboard task data:", data);
+      console.log("Dashboard tasks:", data.tasks);
       setError("");
     } catch (error) {
       setError("Server error");
@@ -85,7 +87,7 @@ const Dashboard = () => {
                 <Link key={t.id} to={`/tasks/${t.id}`}>
                   <Card title={t.title} dueDate={t.dueDate} />
                 </Link>
-              )
+              );
             })}
           </div>
         </>

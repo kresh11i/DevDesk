@@ -38,7 +38,15 @@ function validateTaskFields(task) {
 }
 
 router.get("/", (req, res) => {
-  res.json(tasks);
+  const totalTasks = tasks.length;
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
+  const start = (page - 1) * limit;
+  const totalPages = Math.ceil(totalTasks / limit);
+  const slicedTasks = tasks.slice(start, start + limit);
+
+
+  res.json({ tasks: slicedTasks, page, totalTasks, totalPages });
 });
 
 router.get("/dashboard", (req, res) => {

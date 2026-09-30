@@ -1,8 +1,10 @@
 
 import api from "./api";
 
-export async function getAllTasks() {
-    const response = await api.get("/tasks");
+export async function getAllTasks(currentPage, limit) {
+    const response = await api.get("/tasks", {
+        params: { page: currentPage, limit: limit }
+    });
     return response.data;
 }
 
