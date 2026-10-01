@@ -30,9 +30,9 @@ function AppRoutes() {
       <Route
         path="/tasks"
         element={
-          <ProtectedRoutes>
+          // <ProtectedRoutes>
             <Tasks />
-          </ProtectedRoutes>
+          // {/* </ProtectedRoutes> */}
         }
       />
       <Route

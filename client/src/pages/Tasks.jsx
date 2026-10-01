@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Input from "../components/Input";
 import { createTasks, getAllTasks } from "../services/taskServices";
 import Card from "../components/Card";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
 import { all } from "axios";
 
@@ -26,6 +26,7 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // variables
   const fetchData = async () => {
@@ -95,11 +96,59 @@ const Tasks = () => {
   useEffect(() => {
     const delay = setTimeout(() => {
       setDebounceSearch(search);
+      setSearchParams((perv) => {
+        const params = new URLSearchParams(perv);
+
+        if (search) {
+          params.set("search", search);
+        } else {
+          params.delete("search");
+        }
+
+        if (statusFilter !== "all") {
+          params.set("status", statusFilter);
+        } else {
+          params.delete("status");
+        }
+
+        if (priorityFilter !== "all") {
+          params.set("priority", priorityFilter);
+        } else {
+          params.delete("priority");
+        }
+        if (sortBy !== "default") {
+          params.set("sort", sortBy);
+        } else {
+          params.delete("sort");
+        }
+        if (currentPage !== 1) {
+          params.set("page", currentPage);
+        } else {
+          params.delete("page");
+        }
+        return params;
+      });
     }, 500);
     return () => {
       clearTimeout(delay);
     };
-  }, [search]);
+  }, [search, statusFilter, priorityFilter, sortBy,currentPage]);
+
+  useEffect(() => {
+    const urlSearch = searchParams.get("search");
+    const urlStatus = searchParams.get("status");
+    const urlPriority = searchParams.get("priority");
+    const urlSort = searchParams.get("sort");
+    const urlPage = searchParams.get("page");
+    const validPriorities = ["low", "medium", "high"];
+    setSearch(urlSearch || "");
+    setStatusFilter(urlStatus || "all");
+    setPriorityFilter(
+      validPriorities.includes(urlPriority) ? urlPriority : "all",
+    );
+    setSortBy(urlSort || "default");
+    setCurrentPage(Number(urlPage) || 1);
+  }, [searchParams]);
 
   const handleForm = (e) => {
     const { name, value } = e.target;
@@ -108,6 +157,11 @@ const Tasks = () => {
       [name]: value,
     });
   };
+
+  //logs
+  useEffect(() => {
+    console.log(searchParams);
+  }, []);
 
   // functions
 

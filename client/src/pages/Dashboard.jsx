@@ -15,8 +15,6 @@ const Dashboard = () => {
       const data = await getAllTasks(1,5);
       setTaskData(data.tasks);
       setLoading(false);
-      console.log("Dashboard task data:", data);
-      console.log("Dashboard tasks:", data.tasks);
       setError("");
     } catch (error) {
       setError("Server error");
