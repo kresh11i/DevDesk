@@ -5,6 +5,7 @@ import Card from "../components/Card";
 import { Link, useSearchParams } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
 import { all } from "axios";
+import useFetch from "../hooks/useFetch";
 
 const Tasks = () => {
   // states
@@ -17,7 +18,6 @@ const Tasks = () => {
     category: "",
   });
   const [taskList, setTaskList] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -28,21 +28,14 @@ const Tasks = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // variables
-  const fetchData = async () => {
-    console.log("FETCHING → page:", currentPage, "limit:", limit);
-    try {
-      const data = await getAllTasks(currentPage, limit);
+  const { data, error, loading } = useFetch(getAllTasks, [currentPage, limit]);
+
+  useEffect(() => {
+    if (data) {
       setTaskList(data.tasks);
       setTotalPages(data.totalPages);
-
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
     }
-  };
-
+  }, [data]);
   // filter tasks
   const filteredTask = taskList.filter((task) => {
     return (
@@ -89,9 +82,6 @@ const Tasks = () => {
 
   // useEffects
 
-  useEffect(() => {
-    fetchData();
-  }, [currentPage]);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -132,7 +122,7 @@ const Tasks = () => {
     return () => {
       clearTimeout(delay);
     };
-  }, [search, statusFilter, priorityFilter, sortBy,currentPage]);
+  }, [search, statusFilter, priorityFilter, sortBy, currentPage]);
 
   useEffect(() => {
     const urlSearch = searchParams.get("search");
@@ -162,6 +152,8 @@ const Tasks = () => {
   useEffect(() => {
     console.log(searchParams);
   }, []);
+
+
 
   // functions
 
