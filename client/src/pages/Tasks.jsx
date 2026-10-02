@@ -6,6 +6,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
 import { all } from "axios";
 import useFetch from "../hooks/useFetch";
+import { useDebounce } from "../hooks/useDebounce";
 
 const Tasks = () => {
   // states
@@ -19,7 +20,6 @@ const Tasks = () => {
   });
   const [taskList, setTaskList] = useState([]);
   const [search, setSearch] = useState("");
-  const [debounceSearch, setDebounceSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
@@ -29,7 +29,7 @@ const Tasks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { data, error, loading } = useFetch(getAllTasks, [currentPage, limit]);
-
+  const { debouncedSearch } = useDebounce(search, 1000);
   useEffect(() => {
     if (data) {
       setTaskList(data.tasks);
@@ -39,7 +39,7 @@ const Tasks = () => {
   // filter tasks
   const filteredTask = taskList.filter((task) => {
     return (
-      task.title.toLowerCase().includes(debounceSearch.toLowerCase()) &&
+      task.title.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
       (statusFilter === "all" || task.status === statusFilter) &&
       (priorityFilter === "all" || task.priority === priorityFilter)
     );
@@ -82,46 +82,46 @@ const Tasks = () => {
 
   // useEffects
 
+  useEffect(() => {
+    console.log("🔍 Search input:", search);
+    console.log("⏳ Debounced search:", debouncedSearch);
+  }, [search, debouncedSearch]);
 
   useEffect(() => {
-    const delay = setTimeout(() => {
-      setDebounceSearch(search);
-      setSearchParams((perv) => {
-        const params = new URLSearchParams(perv);
+    setSearchParams((perv) => {
+      const params = new URLSearchParams(perv);
 
-        if (search) {
-          params.set("search", search);
-        } else {
-          params.delete("search");
-        }
+      if (search) {
+        params.set("search", search);
+      } else {
+        params.delete("search");
+      }
 
-        if (statusFilter !== "all") {
-          params.set("status", statusFilter);
-        } else {
-          params.delete("status");
-        }
+      if (statusFilter !== "all") {
+        params.set("status", statusFilter);
+      } else {
+        params.delete("status");
+      }
 
-        if (priorityFilter !== "all") {
-          params.set("priority", priorityFilter);
-        } else {
-          params.delete("priority");
-        }
-        if (sortBy !== "default") {
-          params.set("sort", sortBy);
-        } else {
-          params.delete("sort");
-        }
-        if (currentPage !== 1) {
-          params.set("page", currentPage);
-        } else {
-          params.delete("page");
-        }
-        return params;
-      });
-    }, 500);
-    return () => {
-      clearTimeout(delay);
-    };
+      if (priorityFilter !== "all") {
+        params.set("priority", priorityFilter);
+      } else {
+        params.delete("priority");
+      }
+      if (sortBy !== "default") {
+        params.set("sort", sortBy);
+      } else {
+        params.delete("sort");
+      }
+      if (currentPage !== 1) {
+        params.set("page", currentPage);
+      } else {
+        params.delete("page");
+      }
+      return params;
+    });
+
+  
   }, [search, statusFilter, priorityFilter, sortBy, currentPage]);
 
   useEffect(() => {
@@ -152,8 +152,6 @@ const Tasks = () => {
   useEffect(() => {
     console.log(searchParams);
   }, []);
-
-
 
   // functions
 
