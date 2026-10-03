@@ -8,6 +8,8 @@ import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import { AppleSpinner } from "../components/AppleSpinner";
 import { Link } from "react-router-dom";
+import Dropdown from "../components/Dropdown";
+import FocusInput from "./FocusInput";
 
 const Dashboard = () => {
   const fetchData = async () => {
@@ -79,6 +81,8 @@ const Dashboard = () => {
 
             <Badge>completed</Badge>
             <Badge>pending</Badge>
+            <Dropdown />
+            <FocusInput />
 
             {taskData.map((t) => {
               return (
