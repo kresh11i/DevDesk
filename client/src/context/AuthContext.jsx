@@ -4,6 +4,8 @@ const AuthContext = createContext(null);
 const demoUser = {
   name: "Pradeep",
   email: "pradeep@example.com",
+  bio: "photographer",
+  role: "user",
 };
 
 const AuthProvider = ({ children }) => {
@@ -15,9 +17,15 @@ const AuthProvider = ({ children }) => {
   const logOut = () => {
     setUser(null);
   };
+  const updateUser = (updatedData) => {
+    setUser((oldUser) => ({
+      ...oldUser,
+      ...updatedData,
+    }));
+  };
 
   return (
-    <AuthContext.Provider value={{ user, logIn ,logOut}}>
+    <AuthContext.Provider value={{ user, logIn, logOut , updateUser }}>
       {children}
     </AuthContext.Provider>
   );
