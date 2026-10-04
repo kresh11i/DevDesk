@@ -264,7 +264,6 @@ const Tasks = () => {
       <button onClick={handlePrivious} disabled={currentPage === 1}>
         Previous
       </button>
-
       {sortedTask.map((t) => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>
