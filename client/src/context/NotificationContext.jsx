@@ -2,12 +2,12 @@ import React, { createContext, useState } from "react";
 
 const NotificationContext = createContext(null);
 const NotificationProvider = ({ children }) => {
-  const [notification, setNotification] = useState("");
-  const showNotification = (message) => {
-    setNotification(message);
+  const [notification, setNotification] = useState(null);
+  const showNotification = (message,type) => {
+    setNotification({message,type});
   };
   const clearNotification = () => {
-    setNotification("");
+    setNotification(null);
   };
 
   return (

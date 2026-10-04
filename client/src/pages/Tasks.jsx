@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Input from "../components/Input";
 import { createTasks, getAllTasks } from "../services/taskServices";
 import Card from "../components/Card";
 import { Link, useSearchParams } from "react-router-dom";
 import { AppleSpinner } from "../components/AppleSpinner";
-import { all } from "axios";
 import useFetch from "../hooks/useFetch";
 import { useDebounce } from "../hooks/useDebounce";
+import { NotificationContext } from "../context/NotificationContext";
 
 const Tasks = () => {
   // states
@@ -27,9 +27,9 @@ const Tasks = () => {
   const [limit, setLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
-
   const { data, error, loading } = useFetch(getAllTasks, [currentPage, limit]);
   const { debouncedSearch } = useDebounce(search, 1000);
+  const { showNotification } = useContext(NotificationContext);
   useEffect(() => {
     if (data) {
       setTaskList(data.tasks);
@@ -69,23 +69,16 @@ const Tasks = () => {
     if (currentPage < totalPages) {
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
-      console.log(nextPage);
     }
   };
   const handlePrivious = () => {
     if (currentPage > 1) {
       const previousPage = currentPage - 1;
       setCurrentPage(previousPage);
-      console.log(previousPage);
     }
   };
 
   // useEffects
-
-  useEffect(() => {
-    console.log("🔍 Search input:", search);
-    console.log("⏳ Debounced search:", debouncedSearch);
-  }, [search, debouncedSearch]);
 
   useEffect(() => {
     setSearchParams((perv) => {
@@ -120,8 +113,6 @@ const Tasks = () => {
       }
       return params;
     });
-
-  
   }, [search, statusFilter, priorityFilter, sortBy, currentPage]);
 
   useEffect(() => {
@@ -149,9 +140,6 @@ const Tasks = () => {
   };
 
   //logs
-  useEffect(() => {
-    console.log(searchParams);
-  }, []);
 
   // functions
 
@@ -171,10 +159,10 @@ const Tasks = () => {
       });
 
       setTaskList([...taskList, data]);
-
-      console.log("Task created:", data);
+      showNotification("Task created successfully", "success");
     } catch (error) {
       console.log(error.response.data);
+      showNotification("Failed to create task", "error");
     }
   };
 
@@ -227,7 +215,6 @@ const Tasks = () => {
           onChange={(e) => {
             setSearch(e.target.value);
             setCurrentPage(1);
-            console.log("Search changed → Page reset to:", 1);
           }}
         />
 
@@ -271,20 +258,13 @@ const Tasks = () => {
 
         <button type="submit">Create Task</button>
       </form>
-      <button onClick={handleNext} disabled={currentPage === 4}>
+      <button onClick={handleNext} disabled={currentPage === totalPages}>
         Next
       </button>
       <button onClick={handlePrivious} disabled={currentPage === 1}>
         Previous
       </button>
-      {/* {filteredTask.map((t) => {
-        return (
-          <Link key={t.id} to={`/tasks/${t.id}`}>
-            {" "}
-            <Card title={t.title} />
-          </Link>
-        );
-      })} */}
+
       {sortedTask.map((t) => {
         return (
           <Link key={t.id} to={`/tasks/${t.id}`}>

@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
+import Toast from "./components/Toast.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -12,6 +13,7 @@ createRoot(document.getElementById("root")).render(
       <ThemeProvider>
         <NotificationProvider>
           <App />
+          <Toast />
         </NotificationProvider>
       </ThemeProvider>
     </AuthProvider>
