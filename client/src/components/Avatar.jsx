@@ -1,12 +1,16 @@
-import React from 'react'
+import React from "react";
 
-const Avatar = (props) => {
+const Avatar = ({ name, img }) => {
   return (
     <div>
+      <h3>{name}</h3>
+      {img ? (
+        <img className="w-24 h-24 rounded-full object-cover" src={img}></img>
+      ) : (
         <div className="h-10 w-10 bg-amber-300 rounded-2xl"></div>
-      <h3>{props.name}</h3>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Avatar
+export default Avatar;

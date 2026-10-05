@@ -1,7 +1,16 @@
 import express from "express";
 import tasks from "../data/tasks.js";
+import multer from "multer";
 
 const router = express.Router();
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
 
 const validStatuses = ["pending", "completed"];
 const validPriorities = ["low", "medium", "high"];
@@ -190,5 +199,14 @@ router.patch("/:id/status", (req, res) => {
   task.status = req.body.status;
   res.json(task);
 });
+
+router.post("/profile/avatar", upload.single("image"), (req, res) => {
+
+
+  res.json({
+    message: "Avatar received",
+    filename: req.file.filename,
+  });
+})
 
 export default router;
