@@ -52,7 +52,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/notification"
+        path="/notifications"
         element={
           <ProtectedRoutes>
             <Notifications />
