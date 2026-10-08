@@ -15,7 +15,7 @@ const Navbar = () => {
         <h1 className="text-red-600">DevDesk</h1>
         
         <Avatar name = 'pradeep'/>
-        <button onClick={toggleTheme}>Toggle Theme</button>
+        <button onClick={toggleTheme}>theme {theme}</button>
         <button>unreaded Notification : {unreadCount}</button>
 
       </div>

@@ -4,6 +4,7 @@ const NotificationContext = createContext(null);
 const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [notifyPreference, setNotifyPreference] = useState(true);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -53,6 +54,10 @@ const NotificationProvider = ({ children }) => {
     );
   };
 
+  const toggleNotification = () => {
+    setNotifyPreference((prev) => !prev);
+  };
+
   useEffect(() => {
     const delay = setTimeout(() => {
       setIsLoading(false);
@@ -74,8 +79,10 @@ const NotificationProvider = ({ children }) => {
         clearNotification,
         markAsRead,
         markAllAsRead,
+        toggleNotification,
         unreadCount,
         notifications,
+        notifyPreference,
         isLoading,
       }}
     >
