@@ -2,9 +2,11 @@ import React, { useContext } from "react";
 import Avatar from "./Avatar";
 
 import { ThemeContext } from "../context/ThemeContext";
+import { NotificationContext } from "../context/NotificationContext";
 
 const Navbar = () => {
   const {theme,toggleTheme} = useContext(ThemeContext);
+  const {unreadCount} = useContext(NotificationContext);
  
   
   return (
@@ -14,6 +16,7 @@ const Navbar = () => {
         
         <Avatar name = 'pradeep'/>
         <button onClick={toggleTheme}>Toggle Theme</button>
+        <button>unreaded Notification : {unreadCount}</button>
 
       </div>
     </>

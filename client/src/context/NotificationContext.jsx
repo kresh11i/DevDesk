@@ -1,8 +1,9 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 const NotificationContext = createContext(null);
 const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -43,14 +44,24 @@ const NotificationProvider = ({ children }) => {
     );
   };
 
-const markAllAsRead = () => {
-  setNotifications((prevNotifications) =>
-    prevNotifications.map((notification) => ({
-      ...notification,
-      isRead: true,
-    })),
-  );
-};
+  const markAllAsRead = () => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) => ({
+        ...notification,
+        isRead: true,
+      })),
+    );
+  };
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => {
+      clearTimeout(delay);
+    };
+  }, []);
   const unreadCount = notifications.filter(
     (notification) => !notification.isRead,
   ).length;
@@ -65,6 +76,7 @@ const markAllAsRead = () => {
         markAllAsRead,
         unreadCount,
         notifications,
+        isLoading,
       }}
     >
       {children}
